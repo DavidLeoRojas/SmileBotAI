@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmileBot AI — Demo | Clínica Dental Sonrisa Perfecta</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#00d4aa;--accent2:#4f9eff;--danger:#ff5252;--text:#e8eaf6;--text2:#8892b0;--text3:#4a5568;--bot-bubble:#1e2640;--radius:18px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hbrand{display:flex;align-items:center;gap:12px;}
+.hlogo{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.htitle{font-family:'Playfair Display',serif;font-size:17px;color:#fff;}
+.hsub{font-size:11px;color:var(--text2);}
+.hstatus{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--accent);}
+.dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+.main{display:flex;flex:1;overflow:hidden;}
+/* SIDEBAR */
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.sidebar::-webkit-scrollbar{width:3px;}.sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+.ss{padding:16px 14px;border-bottom:1px solid var(--border);}
+.slabel{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;}
+.mcard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:7px;}
+.mval{font-size:26px;font-weight:700;color:var(--accent);line-height:1;}
+.mlabel{font-size:11px;color:var(--text2);margin-top:3px;}
+.mdelta{font-size:10px;color:#69f0ae;margin-top:2px;}
+.qbtn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-align:left;margin-bottom:5px;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.qbtn:hover{background:var(--border);border-color:var(--accent);color:var(--accent);transform:translateX(2px);}
+/* CHAT */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.chat-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.cavatar{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#00a86b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.cname{font-weight:600;font-size:14px;color:#fff;}
+.conline{font-size:11px;color:var(--accent);}
+.cactions{margin-left:auto;display:flex;gap:7px;}
+.cabtn{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;}
+.cabtn:hover{color:var(--accent);border-color:var(--accent);}
+.cabtn.red:hover{color:var(--danger);border-color:var(--danger);}
+.messages{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth;}
+.messages::-webkit-scrollbar{width:3px;}.messages::-webkit-scrollbar-thumb{background:var(--border);}
+.mgroup{display:flex;flex-direction:column;margin-bottom:8px;}
+.mgroup.bot{align-items:flex-start;}
+.mgroup.user{align-items:flex-end;}
+.bubble{max-width:70%;padding:11px 15px;border-radius:var(--radius);font-size:13.5px;line-height:1.55;animation:bIn .28s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bIn{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.bubble.bot{background:var(--bot-bubble);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);}
+.bubble.user{background:var(--accent);border-bottom-right-radius:4px;color:#000;font-weight:500;}
+.btime{font-size:10px;opacity:.55;margin-top:5px;text-align:right;}
+.bubble.bot .btime{text-align:left;}
+.opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.obtn{background:transparent;border:1.5px solid var(--accent);border-radius:20px;padding:6px 14px;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.obtn:hover:not(:disabled){background:var(--accent);color:#000;}
+.obtn:disabled{opacity:.35;cursor:not-allowed;}
+.typing-wrap{display:flex;align-items:center;gap:5px;padding:12px 14px;background:var(--bot-bubble);border:1px solid var(--border);border-radius:var(--radius);border-bottom-left-radius:4px;width:fit-content;}
+.typing-wrap span{width:6px;height:6px;background:var(--text2);border-radius:50%;animation:ty 1.2s infinite;}
+.typing-wrap span:nth-child(2){animation-delay:.2s;}
+.typing-wrap span:nth-child(3){animation-delay:.4s;}
+@keyframes ty{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+.input-area{background:var(--surface);border-top:1px solid var(--border);padding:12px 18px;display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.ifield{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:11px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.ifield:focus{border-color:var(--accent);}
+.ifield::placeholder{color:var(--text3);}
+.sbtn{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:50%;color:#000;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;flex-shrink:0;}
+.sbtn:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(0,212,170,.4);}
+/* RIGHT PANEL */
+.rpanel{width:260px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.rpanel::-webkit-scrollbar{width:3px;}.rpanel::-webkit-scrollbar-thumb{background:var(--border);}
+.ps{padding:16px 14px;border-bottom:1px solid var(--border);}
+.ptitle{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;}
+.acard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:7px;}
+.aname{font-weight:600;font-size:13px;color:#fff;}
+.aservice{font-size:11px;color:var(--accent);margin-top:3px;}
+.atime{font-size:11px;color:var(--text2);margin-top:4px;}
+.abadge{display:inline-block;background:rgba(0,212,170,.12);border:1px solid rgba(0,212,170,.25);color:var(--accent);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:6px;}
+.logitem{font-size:11px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:7px;}
+.logitem:last-child{border-bottom:none;}
+.logtime{color:var(--text3);font-size:10px;margin-top:2px;}
+.divmsg{text-align:center;font-size:11px;color:var(--text3);margin:10px 0;display:flex;align-items:center;gap:8px;}
+.divmsg::before,.divmsg::after{content:'';flex:1;height:1px;background:var(--border);}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#000;padding:11px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:999;transform:translateY(100px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:7px;}
+.toast.show{transform:translateY(0);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="hbrand">
+    <div class="hlogo">🦷</div>
+    <div><div class="htitle">SmileBot AI</div><div class="hsub">Demo Funcional — Clínica Dental Sonrisa Perfecta</div></div>
+  </div>
+  <div class="hstatus"><div class="dot"></div>Sistema activo 24/7</div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="ss">
+      <div class="slabel">KPIs en Tiempo Real</div>
+      <div class="mcard"><div class="mval" id="m1">0s</div><div class="mlabel">Tiempo de respuesta</div><div class="mdelta">↓ 96% vs 12 min anterior</div></div>
+      <div class="mcard"><div class="mval" id="m2" style="color:var(--accent2)">0</div><div class="mlabel">Consultas atendidas</div><div class="mdelta">↑ Automatizadas al 100%</div></div>
+      <div class="mcard"><div class="mval" id="m3" style="color:#ff9800">0</div><div class="mlabel">Citas agendadas hoy</div><div class="mdelta">Sin intervención humana</div></div>
+    </div>
+    <div class="ss">
+      <div class="slabel">Preguntas rápidas</div>
+      <button class="qbtn" onclick="sq('hola')">👋 Saludo inicial</button>
+      <button class="qbtn" onclick="sq('cuanto cuesta una limpieza dental')">💰 Precio limpieza</button>
+      <button class="qbtn" onclick="sq('donde estan ubicados')">📍 Ubicación</button>
+      <button class="qbtn" onclick="sq('que debo hacer antes de una valoracion')">📋 Preparación cita</button>
+      <button class="qbtn" onclick="sq('trabajan con mi EPS')">🏥 Convenios EPS</button>
+      <button class="qbtn" onclick="sq('tienen disponibilidad esta semana')">📅 Disponibilidad</button>
+      <button class="qbtn" onclick="sq('quiero agendar una cita')">✅ Agendar cita</button>
+      <button class="qbtn" onclick="sq('necesito hablar con un humano')">👤 Escalar a humano</button>
+    </div>
+    <div class="ss">
+      <div class="slabel">Acciones</div>
+      <button class="qbtn" onclick="resetChat()" style="border-color:var(--danger);color:var(--danger)">🔄 Reiniciar demo</button>
+      <button class="qbtn" onclick="exportChat()">📤 Exportar conversación</button>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="cavatar">🤖</div>
+      <div><div class="cname">SmileBot AI</div><div class="conline">● En línea — Responde en menos de 30 segundos</div></div>
+      <div class="cactions">
+        <button class="cabtn" onclick="exportChat()">📤 Exportar</button>
+        <button class="cabtn red" onclick="resetChat()">🔄 Reiniciar</button>
+      </div>
+    </div>
+    <div class="messages" id="msgs"><div class="divmsg">Hoy — Sesión de demostración</div></div>
+    <div class="input-area">
+      <input class="ifield" id="inp" type="text" placeholder="Escribe tu mensaje..." onkeydown="if(event.key==='Enter')send()">
+      <button class="sbtn" onclick="send()">➤</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="rpanel">
+    <div class="ps">
+      <div class="ptitle">Citas Agendadas</div>
+      <div id="appt-list"><div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Sin citas aún.<br>Interactúa con el bot.</div></div>
+    </div>
+    <div class="ps">
+      <div class="ptitle">Log de Actividad</div>
+      <div id="log"><div class="logitem"><span>🟢</span><div><div>Sistema iniciado</div><div class="logtime">Ahora</div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="tmsg"></span></div>
+
+<script>
+// ═══════════════════════════════════════════
+// BASE DE CONOCIMIENTO
+// ═══════════════════════════════════════════
+const FAQ = {
+  precios:{
+    kw:['cuesta','precio','valor','costo','cobran','cuanto','cuánto','tarifa','vale'],
+    txt:`💰 *Precios de nuestros servicios:*\n\n• Limpieza dental — $80.000 COP\n• Blanqueamiento dental — $350.000 COP\n• Valoración / Consulta — $50.000 COP\n• Extracción simple — $120.000 COP\n• Ortodoncia (mensualidad) — desde $180.000 COP\n• Implante dental — desde $2.500.000 COP\n\n_Los precios varían según diagnóstico._\n¿Desea agendar una cita de valoración?`,
+    opts:['✅ Agendar cita','🦷 Ver servicios','Preguntar otra cosa']
+  },
+  ubicacion:{
+    kw:['ubicados','ubicacion','donde','dónde','direccion','dirección','llegar','sede'],
+    txt:`📍 *Nuestra ubicación:*\n\n*Clínica Dental Sonrisa Perfecta*\nCalle 20 # 10-45, Tunja, Boyacá\n\n🕐 *Horarios:*\n• Lun–Vie: 8:00 AM – 6:00 PM\n• Sábados: 8:00 AM – 1:00 PM\n\n📞 (608) 740-0000\n\n_A 2 cuadras del Parque Santander._`,
+    opts:['✅ Agendar cita','Preguntar otra cosa']
+  },
+  preparacion:{
+    kw:['preparacion','preparar','antes','valoracion','debo hacer','que debo'],
+    txt:`📋 *Preparación según tipo de cita:*\n\n🦷 *Limpieza dental:*\n• Cepille sus dientes antes de llegar\n• Evite comer 30 min antes\n\n🔬 *Valoración:*\n• Traiga documento de identidad\n• Lleve radiografías previas si las tiene\n• Informe sobre medicamentos que toma\n\n💉 *Con anestesia:*\n• Ayuno de 2 horas mínimo\n• Venga acompañado si es posible`,
+    opts:['✅ Agendar cita','Preguntar otra cosa']
+  },
+  eps:{
+    kw:['eps','seguro','convenio','aseguradora','afiliado','trabajan con'],
+    txt:`🏥 *Convenios y seguros aceptados:*\n\n✅ Sura  ✅ Sanitas  ✅ Nueva EPS\n✅ Compensar  ✅ Colsanitas  ✅ Coomeva\n✅ Particular (efectivo, tarjeta)\n\n💳 *Métodos de pago:*\nEfectivo • Tarjeta débito/crédito • Transferencia\n\n_Para citas con EPS, traiga su carné y autorización vigente._`,
+    opts:['✅ Agendar cita','💰 Ver precios','Preguntar otra cosa']
+  },
+  disponibilidad:{
+    kw:['disponibilidad','disponible','semana','cuando','cuándo','hay cita','tienen cita'],
+    txt:`📅 *Disponibilidad esta semana:*\n\n🟢 Hoy — 3:00 PM  |  5:00 PM\n🟢 Mañana — 8:00 AM  |  10:00 AM\n🟢 Jueves — 2:00 PM  |  4:00 PM\n🟢 Viernes — 8:00 AM  |  10:00 AM\n🟢 Sábado — 8:00 AM  |  11:00 AM\n\n_Sincronizado con Google Calendar en tiempo real._`,
+    opts:['✅ Agendar cita','Preguntar otra cosa']
+  },
+  servicios:{
+    kw:['servicios','ofrecen','tratamientos','especialidades','ortodoncia','implante','blanqueamiento'],
+    txt:`🦷 *Nuestros servicios:*\n\n*Odontología General:*\nLimpieza • Caries • Extracciones • Obturaciones\n\n*Estética Dental:*\nBlanqueamiento • Carillas • Diseño de sonrisa\n\n*Ortodoncia:*\nBrackets metálicos y estéticos • Invisalign\n\n*Cirugía Oral:*\nImplantes • Cirugía de tercer molar\n\n*Odontopediatría:*\nAtención especializada para niños`,
+    opts:['💰 Ver precios','✅ Agendar cita','Preguntar otra cosa']
+  }
+};
+
+// ═══════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════
+let S={step:'menu',pd:{},consultCount:0,apptCount:0};
+let appts=[];
+
+// ═══════════════════════════════════════════
+// MOTOR DE RESPUESTA
+// ═══════════════════════════════════════════
+function getResp(input){
+  const t=input.toLowerCase().trim();
+  if(t.includes('agendar')||t.includes('cita')||t.includes('reservar')){
+    S.step='name'; return{txt:`📝 *Perfecto, vamos a agendar su cita.*\n\n¿Cuál es su *nombre completo*?`,opts:[]};
+  }
+  if(t.includes('humano')||t.includes('persona')||t.includes('recepcionista')||t.includes('agente')){
+    addLog('👤','Escalamiento solicitado','Recepcionista notificada');
+    toast('👤 Recepcionista notificada');
+    return{txt:`👤 *Transfiriendo con un agente humano...*\n\n_Conectando su conversación con nuestra recepcionista. Tiempo estimado: 2-3 min._\n\n¿Hay algo más en lo que pueda ayudarle mientras espera?`,opts:['Prefiero esperar','Volver al menú']};
+  }
+  if(t.match(/^(hola|buenos|buenas|hi|hello|saludos)/)){
+    return{txt:`👋 ¡Hola! Soy *SmileBot*, el asistente virtual de la *Clínica Dental Sonrisa Perfecta*. 🦷\n\nEstoy disponible *24/7* para ayudarle.\n\n¿En qué puedo ayudarle hoy?`,opts:['💰 Precios','📍 Ubicación','📅 Disponibilidad','✅ Agendar cita','🦷 Servicios','🏥 Convenios EPS']};
+  }
+  if(t.includes('menu')||t.includes('menú')||t.includes('volver')||t.includes('inicio')||t.includes('otra cosa')){
+    S.step='menu';
+    return{txt:`¿En qué más puedo ayudarle? 😊`,opts:['💰 Precios','📍 Ubicación','📅 Disponibilidad','✅ Agendar cita','🦷 Servicios','🏥 Convenios EPS']};
+  }
+  if(t.includes('gracias')){
+    return{txt:`😊 ¡Con mucho gusto! Recuerde que estoy disponible las 24 horas.\n\n¿Hay algo más en lo que pueda ayudarle?`,opts:['✅ Agendar cita','No, es todo']};
+  }
+  for(const[k,f] of Object.entries(FAQ)){
+    if(f.kw.some(kw=>t.includes(kw))) return{txt:f.txt,opts:f.opts};
+  }
+  return{txt:`🤔 No estoy seguro de entender su consulta.\n\nPuedo ayudarle con:\n• Precios de servicios\n• Ubicación y horarios\n• Disponibilidad de citas\n• Agendar una cita\n• Convenios EPS\n\n¿Qué necesita?`,opts:['💰 Precios','📍 Ubicación','✅ Agendar cita','👤 Hablar con humano']};
+}
+
+function handleAppt(input){
+  const t=input.trim();
+  if(S.step==='name'){S.pd.name=t;S.step='cedula';return{txt:`Gracias, *${t}*. 😊\n\n¿Cuál es su número de *cédula*?`,opts:[]};}
+  if(S.step==='cedula'){S.pd.cedula=t;S.step='phone';return{txt:`Perfecto. ¿Cuál es su *número de WhatsApp*?`,opts:[]};}
+  if(S.step==='phone'){S.pd.phone=t;S.step='service';return{txt:`¿Qué servicio odontológico necesita?`,opts:['🦷 Limpieza dental','⭐ Blanqueamiento','🔬 Valoración','📐 Ortodoncia','🦠 Extracción','🔩 Implante']};}
+  if(S.step==='service'){S.pd.service=t.replace(/[🦷⭐🔬📐🦠🔩]/g,'').trim();S.step='date';return{txt:`¿Qué fecha y hora prefiere?\n\n📅 *Disponibilidad:*\n• Hoy — 3:00 PM o 5:00 PM\n• Mañana — 8:00 AM o 10:00 AM\n• Jueves — 2:00 PM o 4:00 PM`,opts:['Hoy 3:00 PM','Hoy 5:00 PM','Mañana 8:00 AM','Mañana 10:00 AM','Jueves 2:00 PM']};}
+  if(S.step==='date'){S.pd.date=t;S.step='confirm';return{txt:`📋 *Resumen de su cita:*\n\n👤 *${S.pd.name}*\n🪪 Cédula: ${S.pd.cedula}\n📱 WhatsApp: ${S.pd.phone}\n🦷 Servicio: ${S.pd.service}\n📅 Fecha: ${S.pd.date}\n\n¿Confirma su cita?`,opts:['✅ Confirmar cita','❌ Cancelar']};}
+  if(S.step==='confirm'){
+    if(t.toLowerCase().includes('confirmar')||t.includes('✅')||t.toLowerCase().startsWith('si')){
+      const a={...S.pd,id:Date.now()};
+      appts.push(a);S.apptCount++;S.step='menu';S.pd={};
+      renderAppts();addLog('📅',`Cita: ${a.name}`,a.service);toast(`🦷 Cita confirmada — ${a.name}`);
+      return{txt:`✅ *¡Cita confirmada!*\n\n_Recibirá un recordatorio por WhatsApp 24 horas antes._\n\n¡Le esperamos, *${a.name}*! 😊🦷`,opts:['Agendar otra cita','Preguntar otra cosa']};
+    } else {
+      S.step='menu';S.pd={};
+      return{txt:`Entendido, cita cancelada. ¿En qué más puedo ayudarle?`,opts:['💰 Precios','📅 Disponibilidad','✅ Agendar cita']};
+    }
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function addMsg(txt,isBot,opts=[]){
+  document.querySelectorAll('.obtn').forEach(b=>b.disabled=true);
+  const el=document.createElement('div');
+  el.className=`mgroup ${isBot?'bot':'user'}`;
+  const now=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  const fmt=txt.replace(/\*(.*?)\*/g,'<strong>$1</strong>').replace(/_(.*?)_/g,'<em>$1</em>').replace(/\n/g,'<br>');
+  el.innerHTML=`<div class="bubble ${isBot?'bot':'user'}">${fmt}${opts.length?`<div class="opts">${opts.map(o=>`<button class="obtn" onclick="sq('${o.replace(/[^\w\s\u00C0-\u024F áéíóúüñÁÉÍÓÚÜÑ]/g,'').trim()||o}')">${o}</button>`).join('')}</div>`:''}<div class="btime">${now} ${isBot?'🤖':'✓✓'}</div></div>`;
+  document.getElementById('msgs').appendChild(el);
+  document.getElementById('msgs').scrollTop=9999;
+  S.consultCount++;
+  document.getElementById('m2').textContent=S.consultCount;
+  document.getElementById('m3').textContent=S.apptCount;
+}
+
+function showTyping(){
+  const el=document.createElement('div');el.className='mgroup bot';el.id='typ';
+  el.innerHTML='<div class="typing-wrap"><span></span><span></span><span></span></div>';
+  document.getElementById('msgs').appendChild(el);
+  document.getElementById('msgs').scrollTop=9999;
+}
+function hideTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+function send(){
+  const inp=document.getElementById('inp');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';process(txt);
+}
+function sq(txt){process(txt);}
+
+function process(txt){
+  addMsg(txt,false);
+  addLog('💬',txt.length>35?txt.substring(0,35)+'...':txt,'');
+  const t0=Date.now();
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const elapsed=((Date.now()-t0)/1000).toFixed(1);
+    document.getElementById('m1').textContent=elapsed+'s';
+    let resp;
+    if(['name','cedula','phone','service','date','confirm'].includes(S.step)) resp=handleAppt(txt);
+    if(!resp) resp=getResp(txt);
+    addMsg(resp.txt,true,resp.opts);
+  },700+Math.random()*500);
+}
+
+function renderAppts(){
+  const el=document.getElementById('appt-list');
+  if(!appts.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Sin citas aún.</div>';return;}
+  el.innerHTML=appts.map(a=>`<div class="acard"><div class="aname">👤 ${a.name}</div><div class="aservice">🦷 ${a.service}</div><div class="atime">📅 ${a.date}</div><div class="atime">📱 ${a.phone}</div><span class="abadge">✅ Confirmada</span></div>`).join('');
+}
+
+function addLog(icon,msg,detail){
+  const el=document.getElementById('log');
+  const now=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  const d=document.createElement('div');d.className='logitem';
+  d.innerHTML=`<span>${icon}</span><div><div>${msg}</div>${detail?`<div style="color:var(--accent);font-size:10px">${detail}</div>`:''}<div class="logtime">${now}</div></div>`;
+  el.insertBefore(d,el.firstChild);
+  if(el.children.length>12)el.lastChild.remove();
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('tmsg').textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function exportChat(){
+  const bs=document.querySelectorAll('.bubble');
+  let txt='SmileBot AI — Conversación\n'+'='.repeat(40)+'\n\n';
+  bs.forEach(b=>{const isBot=b.classList.contains('bot');txt+=`[${isBot?'SmileBot':'Paciente'}]\n${b.innerText}\n\n`;});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download='smilebot-demo.txt';a.click();toast('Chat exportado');
+}
+
+function resetChat(){
+  S={step:'menu',pd:{},consultCount:0,apptCount:0};appts=[];
+  document.getElementById('msgs').innerHTML='<div class="divmsg">Sesión reiniciada</div>';
+  document.getElementById('appt-list').innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Sin citas aún.</div>';
+  document.getElementById('log').innerHTML='<div class="logitem"><span>🟢</span><div><div>Sistema reiniciado</div><div class="logtime">Ahora</div></div></div>';
+  document.getElementById('m1').textContent='0s';document.getElementById('m2').textContent='0';document.getElementById('m3').textContent='0';
+  setTimeout(welcome,300);
+}
+
+function welcome(){
+  addMsg(`👋 ¡Hola! Soy *SmileBot*, el asistente virtual de la *Clínica Dental Sonrisa Perfecta*. 🦷\n\nEstoy disponible *24 horas al día, 7 días a la semana*.\n\n¿En qué puedo ayudarle hoy?`,true,['💰 Precios','📍 Ubicación','📅 Disponibilidad','✅ Agendar cita','🦷 Servicios','🏥 Convenios EPS']);
+  addLog('🟢','SmileBot iniciado','Listo para atender');
+}
+
+welcome();
+</script>
+</body>
+</html>
