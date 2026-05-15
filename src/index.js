@@ -2,6 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
+// ── Quitar la pantalla de advertencia de ngrok ──
+app.use((req, res, next) => {
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -19,7 +25,7 @@ app.get('/', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
   console.log(`\n🦷 SmileBot AI corriendo en http://localhost:${PORT}`);
   console.log(`📡 Webhook listo en http://localhost:${PORT}/webhook`);
