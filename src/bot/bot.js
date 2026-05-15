@@ -293,24 +293,43 @@ async function handleIncomingMessage(phone, text) {
     return msg;
   }
 
+  // Manejar respuesta dentro del menú de FAQ
+  if (session.step === 'faq_menu') {
+    const faqReply = getLocalAIResponse(textClean);
+    addToHistory(phone, 'user', textClean);
+    addToHistory(phone, 'assistant', faqReply);
+    // Después de responder, volver al menú principal
+    updateSession(phone, { step: 'menu' });
+    return faqReply + `\n\n¿Desea consultar otra pregunta? Responda *6* para FAQ o *1* para el menú.`;
+  }
+
+  // Mostrar menú de FAQ si el intent es FAQ_LIST
+  if (intent === 'FAQ_LIST') {
+    updateSession(phone, { step: 'faq_menu' });
+    addToHistory(phone, 'user', textClean);
+    addToHistory(phone, 'assistant', FAQ_RESPONSES[intent]);
+    return FAQ_RESPONSES[intent];
+  }
+
   if (FAQ_RESPONSES[intent]) {
     addToHistory(phone, 'user', textClean);
     addToHistory(phone, 'assistant', FAQ_RESPONSES[intent]);
     return FAQ_RESPONSES[intent];
   }
 
-  // Local fallback sin OpenAI por defecto para evitar costos
-  if (process.env.USE_OPENAI === 'true' && process.env.OPENAI_API_KEY) {
+  // Para consultas sin intent específico, intentar OpenAI primero
+  if (process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes('PEGA')) {
     try {
       const aiReply = await getAIResponse(session.history, textClean);
       addToHistory(phone, 'user', textClean);
       addToHistory(phone, 'assistant', aiReply);
       return aiReply;
     } catch (err) {
-      console.error('OpenAI fallback error:', err.message);
+      console.error('❌ Error OpenAI:', err.message);
     }
   }
 
+  // Fallback: respuesta local genérica cuando OpenAI falla o no está configurado
   const localReply = getLocalAIResponse(textClean);
   addToHistory(phone, 'user', textClean);
   addToHistory(phone, 'assistant', localReply);

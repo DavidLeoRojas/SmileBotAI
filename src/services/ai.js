@@ -155,18 +155,43 @@ function detectIntent(text) {
 
 function getLocalAIResponse(text) {
   const intent = detectIntent(text);
+  const t = text.toLowerCase().trim();
+
+  // Mapeo directo de números 1-10 para preguntas frecuentes
+  const faqMapping = {
+    '1': 'FAQ_SERVICES',      // ¿Qué servicios ofrecen?
+    '2': 'FAQ_PRICE',         // ¿Cuál es el precio de la limpieza?
+    '3': 'FAQ_LOCATION',      // ¿Dónde están ubicados?
+    '4': 'FAQ_HOURS',         // ¿Qué horarios tienen?
+    '5': 'FAQ_EPS',           // ¿Qué convenios EPS aceptan?
+    '6': 'FAQ_PAYMENT',       // ¿Cómo puedo pagar la cita?
+    '7': 'FAQ_EMERGENCY',     // ¿Atienden urgencias dentales?
+    '8': 'FAQ_FIRST_VISIT',   // ¿Qué debo llevar a mi primera cita?
+    '9': 'FAQ_CANCELLATION',  // ¿Puedo cancelar o cambiar mi cita?
+    '10': 'FAQ_CHILDREN'      // ¿Atienden niños?
+  };
+
+  // Si es número 1-10, retornar respuesta FAQ correspondiente
+  if (faqMapping[t]) {
+    return FAQ_RESPONSES[faqMapping[t]];
+  }
 
   if (FAQ_RESPONSES[intent]) return FAQ_RESPONSES[intent];
   if (intent === 'BOOK') return `📝 Para agendar su cita, responda *3* o diga "agendar".`;
   if (intent === 'AVAILABILITY') return `📅 Tenemos citas disponibles hoy y mañana. Responda *3* para iniciar el agendamiento.`;
 
-  return `Lo siento, no entendí bien su mensaje. Por favor responda con:
-1️⃣ Precios
-2️⃣ Ubicación
-3️⃣ Agendar cita
+  return `😊 Disculpe, no comprendí bien su consulta. 
+
+Por favor intente de estas formas:
+
+1️⃣ Precios de servicios
+2️⃣ Ubicación y horarios
+3️⃣ Agendar una cita
 4️⃣ Convenios EPS
 5️⃣ Hablar con recepcionista
-6️⃣ Preguntas frecuentes`;
+6️⃣ Preguntas frecuentes
+
+O escriba su pregunta de otra manera. 😊`;
 }
 
 module.exports = { getLocalAIResponse };
