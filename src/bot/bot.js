@@ -1,6 +1,7 @@
 const { getSession, updateSession, addToHistory } = require('./sessions');
 const { getAIResponse } = require('../services/openai');
 const { getAvailableSlots, createAppointment } = require('../services/calendar');
+const { getLocalAIResponse } = require('../services/ai');
 
 function detectIntent(text) {
   const t = text.toLowerCase().trim();
@@ -10,6 +11,7 @@ function detectIntent(text) {
   if (t === '3') return 'BOOK';
   if (t === '4') return 'FAQ_EPS';
   if (t === '5') return 'ESCALATE';
+  if (t === '6') return 'FAQ_LIST';
 
   if (/^(hola|buenos|buenas|hi|hello|saludos|hey|buen dia|buen día)/.test(t)) return 'GREET';
   if (/agendar|cita|turno|reservar|quiero una cita|necesito cita/.test(t)) return 'BOOK';
@@ -24,6 +26,7 @@ function detectIntent(text) {
   if (/gracias|muchas gracias|thank/.test(t)) return 'THANKS';
   if (/^(cancel|no quiero|salir|terminar|no gracias)/.test(t)) return 'CANCEL';
   if (/menu|menú|inicio|volver|regresar|opciones/.test(t)) return 'GREET';
+  if (/preguntas frecuentes|faq|preguntas|frecuentes/.test(t)) return 'FAQ_LIST';
 
   return 'AI_FALLBACK';
 }
@@ -38,6 +41,7 @@ const FAQ_RESPONSES = {
 3️⃣ Agendar una cita
 4️⃣ Convenios EPS
 5️⃣ Hablar con recepcionista
+6️⃣ Preguntas frecuentes
 
 _Responda con el número o escriba su consulta._`,
 
@@ -102,6 +106,54 @@ _Traiga carné y autorización vigente._
 • Odontopediatría
 
 ¿Le interesa algún servicio? Responda *3* para agendar.`,
+
+  FAQ_LIST: `📚 *Preguntas frecuentes* que puedo responder automáticamente:
+
+1️⃣ ¿Qué servicios ofrecen?
+2️⃣ ¿Cuál es el precio de la limpieza?
+3️⃣ ¿Dónde están ubicados?
+4️⃣ ¿Qué horarios tienen?
+5️⃣ ¿Qué convenios EPS aceptan?
+6️⃣ ¿Cómo puedo pagar la cita?
+7️⃣ ¿Atienden urgencias dentales?
+8️⃣ ¿Qué debo llevar a mi primera cita?
+9️⃣ ¿Puedo cancelar o cambiar mi cita?
+🔟 ¿Atienden niños?
+
+Responda con el número o escriba su pregunta.`,
+
+  FAQ_PAYMENT: `💳 *Formas de pago aceptadas:*
+
+• Efectivo
+• Tarjeta de crédito o débito
+• Transferencia bancaria
+• Pago en línea (según convenio)
+
+Recuerde traer documentos y, si usa EPS, la autorización vigente.`,
+
+  FAQ_EMERGENCY: `🚨 *Urgencias dentales:*
+
+Sí, atendemos emergencias como dolor intenso, inflamación, infección o fractura dental.
+
+Llame al 📞 (608) 740-0000 o responda *3* para agendar la atención.`,
+
+  FAQ_FIRST_VISIT: `👋 *Primera cita:*
+
+Traiga su cédula, cualquier radiografía previa y su carné EPS (si aplica).
+
+Se realiza valoración inicial, diagnóstico y plan de tratamiento.`,
+
+  FAQ_CANCELLATION: `❌ *Cancelar o cambiar una cita:*
+
+Avise con al menos 24 horas de anticipación para reprogramar sin costo.
+
+Escriba "cancelar cita" o responda *5* para hablar con recepcionista.`,
+
+  FAQ_CHILDREN: `🧒 *Atendemos niños y adolescentes.*
+
+Contamos con odontopediatría para evaluación, limpiezas y tratamientos infantiles.
+
+Responda *3* para agendar la cita.`,
 
   THANKS: `😊 ¡Con mucho gusto! Disponible 24/7 para ayudarle.
 ¿Algo más? 1️⃣ Precios  2️⃣ Ubicación  3️⃣ Agendar cita`,
@@ -247,17 +299,22 @@ async function handleIncomingMessage(phone, text) {
     return FAQ_RESPONSES[intent];
   }
 
-  // Fallback con manejo de error robusto
-  try {
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes('PEGA')) throw new Error('No configurado');
-    const aiReply = await getAIResponse(session.history, textClean);
-    addToHistory(phone, 'user', textClean);
-    addToHistory(phone, 'assistant', aiReply);
-    return aiReply;
-  } catch (err) {
-    console.error('OpenAI fallback error:', err.message);
-    return `No entendí su consulta. ¿En qué puedo ayudarle?\n\n1️⃣ Precios\n2️⃣ Ubicación y horarios\n3️⃣ Agendar una cita\n4️⃣ Convenios EPS\n5️⃣ Hablar con recepcionista`;
+  // Local fallback sin OpenAI por defecto para evitar costos
+  if (process.env.USE_OPENAI === 'true' && process.env.OPENAI_API_KEY) {
+    try {
+      const aiReply = await getAIResponse(session.history, textClean);
+      addToHistory(phone, 'user', textClean);
+      addToHistory(phone, 'assistant', aiReply);
+      return aiReply;
+    } catch (err) {
+      console.error('OpenAI fallback error:', err.message);
+    }
   }
+
+  const localReply = getLocalAIResponse(textClean);
+  addToHistory(phone, 'user', textClean);
+  addToHistory(phone, 'assistant', localReply);
+  return localReply;
 }
 
 module.exports = { handleIncomingMessage };
