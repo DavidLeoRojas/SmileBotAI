@@ -19,12 +19,21 @@ router.get('/', (req, res) => {
 
 // ── Recepción de mensajes (POST) ──
 router.post('/', async (req, res) => {
+  console.log('📥 POST /webhook recibido', {
+    ip: req.ip,
+    object: req.body?.object,
+    entries: Array.isArray(req.body?.entry) ? req.body.entry.length : 0
+  });
+
   // Siempre responder 200 rápido para que Meta no reintente
   res.sendStatus(200);
 
   try {
     const body = req.body;
-    if (body.object !== 'whatsapp_business_account') return;
+    if (body.object !== 'whatsapp_business_account') {
+      console.log('⚠️ Webhook ignorado: object no es whatsapp_business_account', body.object);
+      return;
+    }
 
     const entry   = body.entry?.[0];
     const changes = entry?.changes?.[0];
