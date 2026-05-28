@@ -1,18 +1,19 @@
 # 🦷 SmileBot AI — Guía Paso a Paso Completa
+
 ## Clínica Dental Sonrisa Perfecta
 
 ---
 
 ## ¿Qué necesitas antes de empezar?
 
-| Requisito | Gratis | Link |
-|---|---|---|
-| Node.js v18+ | ✅ | nodejs.org |
-| Cuenta Meta Business | ✅ | business.facebook.com |
-| Número de teléfono (cualquiera) | ✅ | Ya lo tienes |
-| API Key OpenAI | ⚠️ $5 crédito inicial | platform.openai.com |
-| Cuenta Google (Gmail) | ✅ | google.com |
-| ngrok (túnel temporal) | ✅ | ngrok.com |
+| Requisito                       | Gratis                | Link                  |
+| ------------------------------- | --------------------- | --------------------- |
+| Node.js v18+                    | ✅                    | nodejs.org            |
+| Cuenta Meta Business            | ✅                    | business.facebook.com |
+| Número de teléfono (cualquiera) | ✅                    | Ya lo tienes          |
+| API Key OpenAI                  | ⚠️ $5 crédito inicial | platform.openai.com   |
+| Cuenta Google (Gmail)           | ✅                    | google.com            |
+| ngrok (túnel temporal)          | ✅                    | ngrok.com             |
 
 ---
 
@@ -34,9 +35,11 @@
 1. Copia la carpeta `smilebot-backend` a tu computador (ej: Escritorio)
 2. Abre una terminal en esa carpeta
 3. Ejecuta:
+
    ```
    npm install
    ```
+
    Espera a que termine (instala Express, OpenAI, googleapis, etc.)
 
 4. Copia el archivo de variables de entorno:
@@ -97,23 +100,30 @@ Meta necesita una URL pública HTTPS para enviar mensajes. ngrok crea un túnel 
 ### 5.2 Iniciar el servidor Y el túnel
 
 **Terminal 1 — Servidor:**
+
 ```bash
 npm run dev
 ```
+
 Deberías ver:
+
 ```
 🦷 SmileBot AI corriendo en http://localhost:3000
 📡 Webhook listo en http://localhost:3000/webhook
 ```
 
 **Terminal 2 — Túnel ngrok:**
+
 ```bash
 ngrok http 3000
 ```
+
 Verás algo así:
+
 ```
 Forwarding   https://abc123.ngrok-free.app -> http://localhost:3000
 ```
+
 Copia esa URL `https://abc123.ngrok-free.app` (cambia cada vez que reinicias)
 
 ---
@@ -158,10 +168,12 @@ Copia esa URL `https://abc123.ngrok-free.app` (cambia cada vez que reinicias)
 4. Pega tu Client ID y Client Secret
 5. En el panel izquierdo busca **Calendar API v3**
 6. Selecciona `https://www.googleapis.com/auth/calendar`
-7. Click **Authorize APIs** → inicia sesión con la cuenta Google de la clínica
-8. Click **Exchange authorization code for tokens**
-9. Copia el **Refresh Token** → `GOOGLE_REFRESH_TOKEN` en `.env`
-10. En `GOOGLE_CALENDAR_ID` pon el email de la cuenta Google: `tuclinica@gmail.com`
+7. También selecciona `https://www.googleapis.com/auth/spreadsheets` para poder guardar datos en Google Sheets
+8. Click **Authorize APIs** → inicia sesión con la cuenta Google de la clínica
+9. Click **Exchange authorization code for tokens**
+10. Copia el **Refresh Token** → `GOOGLE_REFRESH_TOKEN` en `.env`
+11. En `GOOGLE_CALENDAR_ID` pon el email de la cuenta Google: `tuclinica@gmail.com`
+12. En `GOOGLE_SHEETS_ID` pon el ID del spreadsheet donde guardarás citas
 
 ---
 
@@ -181,6 +193,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
 GOOGLE_REDIRECT_URI=https://developers.google.com/oauthplayground
 GOOGLE_REFRESH_TOKEN=1//xxxxxxxxxxxxxxxx
 GOOGLE_CALENDAR_ID=tuclinica@gmail.com
+GOOGLE_SHEETS_ID=1AbCdEfGhIJkLmNoPqRsTuVwXyZ0123456789
 
 PORT=3000
 NODE_ENV=development
@@ -191,20 +204,25 @@ NODE_ENV=development
 ## PASO 9 — Probar que todo funciona
 
 ### Test 1 — Verificar el servidor
+
 Abre en el navegador: `http://localhost:3000`
 Debe responder:
+
 ```json
-{"status":"ok","service":"SmileBot AI"}
+{ "status": "ok", "service": "SmileBot AI" }
 ```
 
 ### Test 2 — Probar el bot por WhatsApp
+
 1. En Meta Developers → WhatsApp → **Configuración de API**
 2. En la sección **Enviar y recibir mensajes**, escribe en tu número personal
 3. Envía un mensaje de WhatsApp al número de prueba de Meta
 4. Deberías recibir respuesta de SmileBot en segundos ✅
 
 ### Test 3 — Flujo completo de agendamiento
+
 Envía estos mensajes en orden:
+
 ```
 1. "Hola"              → SmileBot saluda
 2. "Quiero una cita"   → Pide nombre
@@ -220,14 +238,14 @@ Envía estos mensajes en orden:
 
 ## Problemas comunes y soluciones
 
-| Problema | Solución |
-|---|---|
-| `Cannot find module` | Ejecuta `npm install` de nuevo |
-| Webhook no verifica | Verifica que ngrok esté corriendo y la URL sea correcta |
-| `401 Unauthorized` de WhatsApp | El token expiró (dura 24h), genera uno nuevo en Meta |
-| Calendar no responde | Verifica que el Refresh Token sea correcto |
-| OpenAI error | Verifica que tengas crédito en tu cuenta |
-| ngrok URL cambia | Debes actualizar el webhook en Meta cada vez que reinicias ngrok |
+| Problema                       | Solución                                                         |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `Cannot find module`           | Ejecuta `npm install` de nuevo                                   |
+| Webhook no verifica            | Verifica que ngrok esté corriendo y la URL sea correcta          |
+| `401 Unauthorized` de WhatsApp | El token expiró (dura 24h), genera uno nuevo en Meta             |
+| Calendar no responde           | Verifica que el Refresh Token sea correcto                       |
+| OpenAI error                   | Verifica que tengas crédito en tu cuenta                         |
+| ngrok URL cambia               | Debes actualizar el webhook en Meta cada vez que reinicias ngrok |
 
 ---
 

@@ -230,12 +230,34 @@ async function handleBookingFlow(phone, text, session) {
     const esConfirmar = ['si','sí','yes','confirmar','confirmo','ok','dale','listo','1'].includes(answer);
 
     if (esConfirmar) {
+      let appointmentResult = null;
       try {
-        await createAppointment({ name:pd.name, cedula:pd.cedula, phone:pd.phone, service:pd.service, startISO:pd.startISO, endISO:pd.endISO });
-      } catch(e) { console.warn('Calendar no disponible:', e.message); }
+        appointmentResult = await createAppointment({
+          name: pd.name,
+          cedula: pd.cedula,
+          phone: pd.phone,
+          service: pd.service,
+          dateLabel: pd.date,
+          startISO: pd.startISO,
+          endISO: pd.endISO,
+          history: session.history
+        });
+      } catch (e) {
+        console.warn('Calendar no disponible:', e.message);
+      }
+
+      if (!appointmentResult) {
+        updateSession(phone, { step: 'menu', patientData: {}, availableSlots: [] });
+        return `❌ Lo siento, no pude agendar su cita en este momento. Por favor intente de nuevo más tarde o comuníquese con la clínica.`;
+      }
 
       updateSession(phone, { step: 'menu', patientData: {}, availableSlots: [] });
-      return `✅ *¡Cita confirmada!*\n\n¡Le esperamos, *${pd.name}*! 😊🦷\n_Recibirá un recordatorio 24h antes._\n\n¿Algo más? 1️⃣ Precios  4️⃣ Convenios`;
+      return `✅ *¡Cita confirmada!*
+
+¡Le esperamos, *${pd.name}*! 😊🦷
+_Recibirá un recordatorio 24h antes._
+
+¿Algo más? 1️⃣ Precios  4️⃣ Convenios`;
     } else {
       updateSession(phone, { step: 'menu', patientData: {}, availableSlots: [] });
       return `Cita cancelada. ¿En qué más puedo ayudarle?\n\n1️⃣ Precios  2️⃣ Ubicación  3️⃣ Agendar cita`;
